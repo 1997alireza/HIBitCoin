@@ -12,10 +12,12 @@ END SimpleFSM;
 
 Architecture RTL of SimpleFSM is
 TYPE State_type IS (PADDING, BLOCK_PROCESS, HASH_PROCESS);  
-	SIGNAL State : State_Type;    
+    SIGNAL State : State_Type;
+    signal W : SectionType;
 							     
 BEGIN 
   PROCESS (clock, reset) 
+  variable block_section : integer := 0;
   BEGIN 
     If (reset = '1') THEN            
 	   State <= PADDING;
@@ -29,8 +31,11 @@ BEGIN
                 END IF; 
      
             WHEN BLOCK_PROCESS => 
+                if (block_section >=0 and block_section <= 15) then
+                    W( 15 - t ) <= M ( i ) ( ( ( 32*( t + 1 ) ) - 1 ) downto ( 32*t ) );
+                end if;
                 IF P='1' THEN 
-                    State <= HASH_PROCESS; 
+                    State <= HASH_PROCESS;
                 END IF; 
             WHEN HASH_PROCESS => 
                 IF P='1' THEN 
