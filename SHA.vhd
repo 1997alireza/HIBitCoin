@@ -1,51 +1,44 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-ENTITY SimpleFSM is
-generic ( msg_length : integer := 4 );
-PORT (clock:    IN STD_LOGIC;
-      P:        IN STD_LOGIC;
-      reset:    IN STD_LOGIC;
-      msg:      IN STD_LOGIC_VECTOR(msg_length-1 downto 0);
-      hash : out STD_LOGIC_VECTOR(255 downto 0)
-END SimpleFSM;
+use work.sha_types.all;
+use work.sha_functions.all;
 
-Architecture RTL of SimpleFSM is
-TYPE State_type IS (PADDING, BLOCK_PROCESS, HASH_PROCESS);  
-    SIGNAL State : State_Type;
-    signal W : SectionType;
-							     
-BEGIN 
-  PROCESS (clock, reset) 
+entity SHA is
+generic (msg_length : integer := 4 );
+port (clock:    in STD_LOGIC;
+      P:        in STD_LOGIC;
+      reset:    in STD_LOGIC;
+      msg:      in STD_LOGIC_VECTOR(msg_length-1 downto 0);
+      hash : out STD_LOGIC_VECTOR(255 downto 0));
+end entity;
+
+architecture RTL of SHA is
+    signal State : STATE_TYPE;	
+    signal W : SectionType;			     
+begin 
+  process (clock, reset) 
   variable block_section : integer := 0;
-  BEGIN 
-    If (reset = '1') THEN            
+  begin 
+    if (reset = '1') then            
 	   State <= PADDING;
- 
-    ELSIF rising_edge(clock) THEN   
-        CASE State IS
-     
-            WHEN PADDING => 
-                IF P='1' THEN 
-                    State <= BLOCK_PROCESS; 
-                END IF; 
-     
-            WHEN BLOCK_PROCESS => 
+    elsif rising_edge(clock) then   
+        case State is
+            when PADDING => 
+            when BLOCK_PROCESS => 
                 if (block_section >=0 and block_section <= 15) then
-                    W( 15 - t ) <= M ( i ) ( ( ( 32*( t + 1 ) ) - 1 ) downto ( 32*t ) );
+                    W( block_section ) <= permutation(M ( i ) ( ( ( 32 * ( block_section + 1 ) ) - 1 ) downto ( 32*block_section ) ));
+                elsif (block_section >= 16 and block_section <= 63) then
+                    W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( t - 1 ) ) ) + unsigned ( W ( t - 6 ) ) + unsigned ( sigma_zero( W( t - 12 ) ) ) + unsigned ( W ( t - 15 ) ) ));
+                else 
+                    State <= BLOCK_PROCESS;
                 end if;
-                IF P='1' THEN 
-                    State <= HASH_PROCESS;
-                END IF; 
-            WHEN HASH_PROCESS => 
-                IF P='1' THEN 
-                    State <= D; 
-                END IF; 
-            WHEN others =>
+                block_section := block_section + 1;
+            when HASH_PROCESS => 
+                
+            when others =>
                 State <= PADDING;
-        END CASE; 
-    END IF; 
-  END PROCESS;
-
-
-END rtl;
+        end case; 
+    end if; 
+  end process;
+end rtl;
