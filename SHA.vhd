@@ -14,15 +14,18 @@ port (clock:    in STD_LOGIC;
 end entity;
 
 architecture RTL of SHA is
-	signal State : STATE_TYPE;				     
+    signal State : STATE_TYPE;	
+    signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length)-1) downto 0);		
+    signal a : integer;	     
 begin 
-  process (clock, reset) 
+  process (clock, reset)
   begin 
     if (reset = '1') then            
 	   State <= PADDING;
     elsif rising_edge(clock) then   
         case State is
-            when PADDING => 
+            when PADDING =>
+                padding_msg <= padding(msg, padded_msg_size(msg_length));
                 State <= BLOCK_PROCESS; 
             when BLOCK_PROCESS => 
                 if P='1' then 
