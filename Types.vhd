@@ -3,8 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 package sha_types is
     type STATE_TYPE is (PADDING, BLOCK_PROCESS, HASH_PROCESS);  
-    type LOGIC_VECTOR_64_32 is array (63 downto 0) OF STD_LOGIC_VECTOR(31 downto 0);
-    type LOGIC_VECTOR_8_32 is array (7 downto 0) OF STD_LOGIC_VECTOR(31 downto 0);
+    type LOGIC_VECTOR_64_32 is array (0 to 63) of STD_LOGIC_VECTOR(31 downto 0);
+    type LOGIC_VECTOR_8_32 is array (7 to 0) of STD_LOGIC_VECTOR(31 downto 0);
     constant CONST_K : LOGIC_VECTOR_64_32 := (
         (x"428a2f98"), (x"71374491"), (x"b5c0fbcf"), (x"e9b5dba5"), (x"3956c25b"), (x"59f111f1"), (x"923f82a4"), (x"ab1c5ed5"), 
         (x"d807aa98"), (x"12835b01"), (x"243185be"), (x"550c7dc3"), (x"72be5d74"), (x"80deb1fe"), (x"9bdc06a7"), (x"c19bf174"), 
