@@ -13,25 +13,30 @@ port (clock:    in STD_LOGIC;
       hash : out STD_LOGIC_VECTOR(255 downto 0));
 end entity;
 
-architecture RTL of SHA is
-    signal State : STATE_TYPE;	
-    signal W : SectionType;			     
+architecture rtl of SHA is
+    signal State : STATE_TYPE;
+    signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length)-1) downto 0);		
+    signal a : integer;	   
+    signal W : SectionType;
 begin 
-  process (clock, reset) 
+  process (clock, reset)
   variable block_section : integer := 0;
+  variable i : integer := 0;
   begin 
-    if (reset = '1') then            
+    if (reset = '1') then
 	   State <= PADDING;
     elsif rising_edge(clock) then   
         case State is
-            when PADDING => 
+            when PADDING =>
+                padding_msg <= padding(msg, padded_msg_size(msg_length));
+                State <= BLOCK_PROCESS; 
             when BLOCK_PROCESS => 
                 if (block_section >=0 and block_section <= 15) then
-                    W( block_section ) <= permutation(M ( i ) ( ( ( 32 * ( block_section + 1 ) ) - 1 ) downto ( 32*block_section ) ));
+                    W( block_section ) <= permutation(padding_msg ( ((i)*512 + ( ( 32 * ( block_section + 1 ) ) - 1 )) downto ((i)*512 + ( 32*block_section )) ));
                 elsif (block_section >= 16 and block_section <= 63) then
-                    W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( t - 1 ) ) ) + unsigned ( W ( t - 6 ) ) + unsigned ( sigma_zero( W( t - 12 ) ) ) + unsigned ( W ( t - 15 ) ) ));
+                    W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( block_section - 1 ) ) ) + unsigned ( W ( block_section - 6 ) ) + unsigned ( sigma_zero( W( block_section - 12 ) ) ) + unsigned ( W ( block_section - 15 ) ) ));
                 else 
-                    State <= BLOCK_PROCESS;
+                    State <= HASH_PROCESS;
                 end if;
                 block_section := block_section + 1;
             when HASH_PROCESS => 
