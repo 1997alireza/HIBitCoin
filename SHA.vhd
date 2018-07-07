@@ -7,7 +7,6 @@ use work.sha_functions.all;
 entity SHA is
 generic (msg_length : integer := 4 );
 port (clock:    in STD_LOGIC;
-      P:        in STD_LOGIC;
       reset:    in STD_LOGIC;
       msg:      in STD_LOGIC_VECTOR(msg_length-1 downto 0);
       ready:    out STD_LOGIC;
@@ -22,12 +21,13 @@ architecture rtl of SHA is
 begin 
   process (clock, reset)
     variable hash_iteration, i, block_section : integer := 0;
-    variable a, b, c, d, e, f, g, h : std_logic_vector(31 downto 0); 
     variable inner_compression_result : LOGIC_VECTOR_8_32;
-  begin 
+    variable a, b, c, d, e, f, g, h : std_logic_vector(31 downto 0);
+  begin
     if (reset = '1') then
 	   State <= PADDING;
 	   ready <= '0';
+	   hash_part <= HASH_INITIAL;
     elsif rising_edge(clock) then   
         case State is
             when PADDING =>
@@ -40,10 +40,18 @@ begin
                     W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( block_section - 1 ) ) ) + unsigned ( W ( block_section - 6 ) ) + unsigned ( sigma_zero( W( block_section - 12 ) ) ) + unsigned ( W ( block_section - 15 ) ) ));
                 else 
                     hash_iteration := 0;
+                    a := hash_part(0);
+                    b := hash_part(1);
+                    c := hash_part(2);
+                    d := hash_part(3);
+                    e := hash_part(4);
+                    f := hash_part(5);
+                    g := hash_part(6);
+                    h := hash_part(7);
                     State <= HASH_PROCESS;
                 end if;
                 block_section := block_section + 1;
-            when HASH_PROCESS =>  -- ghable inja a..h meghdar avalie dade beshan bar asase hash_part
+            when HASH_PROCESS =>
                 if hash_iteration < 64 then
                     inner_compression_result := inner_compression(a, b, c, d, e, f, g, h, CONST_K(hash_iteration), W(hash_iteration));
                     a := inner_compression_result(0);

@@ -67,14 +67,14 @@ package body sha_functions is
       cU := bU;
       aU := t1 + t1 + t1 - t2;
       
-      result(0) := std_logic_vector(a);
-      result(1) := std_logic_vector(b);
-      result(2) := std_logic_vector(c);
-      result(3) := std_logic_vector(d);
-      result(4) := std_logic_vector(e);
-      result(5) := std_logic_vector(f);
-      result(6) := std_logic_vector(g);
-      result(7) := std_logic_vector(h);
+      result(0) := std_logic_vector(aU);
+      result(1) := std_logic_vector(bU);
+      result(2) := std_logic_vector(cU);
+      result(3) := std_logic_vector(dU);
+      result(4) := std_logic_vector(eU);
+      result(5) := std_logic_vector(fU);
+      result(6) := std_logic_vector(gU);
+      result(7) := std_logic_vector(hU);
       return result;
    end;
    
@@ -99,6 +99,5 @@ package body sha_functions is
             result(6) := x(25);result(5) := x(26);result(4) := x(27);result(3) := x(28);result(2) := x(29);
             result(1) := x(30);result(0) := x(31);
             return result;
-        end function;
-      
+        end function;   
 end package body;
