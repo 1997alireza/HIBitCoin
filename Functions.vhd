@@ -55,5 +55,18 @@ package body sha_functions is
             result(1) := x(30);result(0) := x(31);
             return result;
         end function;
+    
+
+    procedure ready_hash ( signal a, b, c, d, e, f, g, h : inout std_logic_vector( 31 downto 0 ); signal Hash : in std_logic_vector( 255 downto 0 ) ) is
+    begin
+      a <= Hash( 31 downto 0 );
+      b <= Hash( 63 downto 32 );
+      c <= Hash( 95 downto 64 );
+      d <= Hash( 127 downto 96 );
+      e <= Hash( 159 downto 128 ); 
+      f <= Hash( 191 downto 160 );
+      g <= Hash( 223 downto 192 );
+      h_reg <= Hash( 255 downto 224 );
+end procedure;
       
 end package body;

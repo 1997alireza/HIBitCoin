@@ -18,6 +18,8 @@ architecture rtl of SHA is
     signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length)-1) downto 0);		
     signal a : integer;	   
     signal W : SectionType;
+    signal a, b, c, d, e, f, g, h : std_logic_vector( 31 downto 0 );
+    signal Hashes : std_logic_vector( 255 downto 0 ) := ( others => '0' );
 begin 
   process (clock, reset)
   variable block_section : integer := 0;
@@ -36,6 +38,7 @@ begin
                 elsif (block_section >= 16 and block_section <= 63) then
                     W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( block_section - 1 ) ) ) + unsigned ( W ( block_section - 6 ) ) + unsigned ( sigma_zero( W( block_section - 12 ) ) ) + unsigned ( W ( block_section - 15 ) ) ));
                 else 
+                    ready_hash(a,b,c,d,e,f,g,h,Hashes)
                     State <= HASH_PROCESS;
                 end if;
                 block_section := block_section + 1;
