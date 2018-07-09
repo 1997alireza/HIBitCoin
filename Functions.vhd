@@ -89,7 +89,7 @@ package body sha_functions is
     end function;
     
     function permutation( x : std_logic_vector ) return std_logic_vector is
-        variable padding_msg,result : STD_LOGIC_VECTOR(31 downto 0);
+        variable result : STD_LOGIC_VECTOR(31 downto 0);
         begin
             result(31) := x(0);result(30) := x(1);result(29) := x(2);result(28) := x(3);result(27) := x(4);
             result(26) := x(5);result(25) := x(6);result(24) := x(7);result(23) := x(15);result(22) := x(14);

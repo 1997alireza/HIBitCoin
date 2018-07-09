@@ -23,6 +23,7 @@ begin
     variable hash_iteration, i, block_section : integer := 0;
     variable inner_compression_result : LOGIC_VECTOR_8_32;
     variable a, b, c, d, e, f, g, h : std_logic_vector(31 downto 0);
+    variable pad_temp : std_logic_vector(31 downto 0);
   begin
     if (reset = '1') then
 	   State <= PADDING;
@@ -35,7 +36,8 @@ begin
                 State <= BLOCK_PROCESS; 
             when BLOCK_PROCESS => 
                 if (block_section >=0 and block_section <= 15) then
-                    W( block_section ) <= permutation(padding_msg ( ((i)*512 + ( ( 32 * ( block_section + 1 ) ) - 1 )) downto ((i)*512 + ( 32*block_section )) ));
+                    pad_temp := padding_msg (((i)*512 + ( ( 32 * ( block_section + 1 ) ) - 1 )) downto ((i)*512 + ( 32*block_section ))) ;
+                    W( block_section ) <= permutation(pad_temp);
                 elsif (block_section >= 16 and block_section <= 63) then
                     W( block_section ) <= permutation(std_logic_vector( unsigned( sigma_one ( W( block_section - 1 ) ) ) + unsigned ( W ( block_section - 6 ) ) + unsigned ( sigma_zero( W( block_section - 12 ) ) ) + unsigned ( W ( block_section - 15 ) ) ));
                 else 
