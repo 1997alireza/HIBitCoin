@@ -28,7 +28,7 @@ begin
 	   State <= PADDING;
 	   ready <= '0';
 	   hash_part <= HASH_INITIAL;
-    elsif rising_edge(clock) then   
+    elsif rising_edge(clock) then 
         case State is
             when PADDING =>
                 padding_msg <= padding(msg, padded_msg_size(msg_length)) & std_logic_vector(to_unsigned(msg_length, MESSAGE_LENGTH_SIZE));
@@ -79,11 +79,13 @@ begin
                         block_section := 0;
                         State <= BLOCK_PROCESS;
                     else
-                        hash <= hash_part(0) & hash_part(1) & hash_part(2) & hash_part(3) & hash_part(4) & hash_part(5) & hash_part(6) & hash_part(7);
-                        ready <= '1';
-                        State <= WATING;
+                        State <= HASH_READY;
                     end if;
                 end if;
+            when HASH_READY =>
+                hash <= hash_part(0) & hash_part(1) & hash_part(2) & hash_part(3) & hash_part(4) & hash_part(5) & hash_part(6) & hash_part(7);
+                ready <= '1';
+                State <= WATING;
             when WATING => -- waiting for new message with reset signal
             when others =>
                 State <= WATING;
