@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 
 package sha_functions is
     function padded_msg_size(msg_size : in integer) return integer;
-    function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer) return STD_LOGIC_VECTOR;
+    function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer; msg_length : integer) return STD_LOGIC_VECTOR;
     function inner_compression(a,b,c,d,ee,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32;
     function sigma_one ( x : std_logic_vector ) return std_logic_vector;
     function sigma_zero ( x : std_logic_vector ) return std_logic_vector;
@@ -22,15 +22,16 @@ package body sha_functions is
       if (last_part > 448) then
          ret := 512 + ret;
       end if;
-      return ret;
+      return ret + MESSAGE_LENGTH_SIZE;
    end;
    
-   function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer) return STD_LOGIC_VECTOR is
+   function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer; msg_length : integer) return STD_LOGIC_VECTOR is
       variable padding_msg : STD_LOGIC_VECTOR(padding_msg_size-1 downto 0);
    begin
       padding_msg(padding_msg_size-1 downto padding_msg_size-msg'length) := msg;
       padding_msg(padding_msg_size-msg'length-1) := '1';
-      padding_msg(padding_msg_size-msg'length-2 downto 0) := (others => '0');
+      padding_msg(padding_msg_size-msg'length-2 downto MESSAGE_LENGTH_SIZE) := (others => '0');
+      padding_msg(MESSAGE_LENGTH_SIZE-1 downto 0) := std_logic_vector(to_unsigned(msg_length, MESSAGE_LENGTH_SIZE));
       return padding_msg;
    end;
       
@@ -39,22 +40,22 @@ package body sha_functions is
       variable aU,bU,cU,dU,eU,fU,gU,hU,ktU,wtU : unsigned(31 downto 0);
       variable result : LOGIC_VECTOR_8_32;
    begin
-      aU := unsigned(a);
-      bU := unsigned(b);
-      cU := unsigned(c);
-      dU := unsigned(d);
-      eU := unsigned(ee);
-      fU := unsigned(f);
-      gU := unsigned(g);
-      hU := unsigned(h);
-      ktU := unsigned(kt);
-      wtU := unsigned(wt);
+      aU := unsigned(reverse_any_vector(a));
+      bU := unsigned(reverse_any_vector(b));
+      cU := unsigned(reverse_any_vector(c));
+      dU := unsigned(reverse_any_vector(d));
+      eU := unsigned(reverse_any_vector(ee));
+      fU := unsigned(reverse_any_vector(f));
+      gU := unsigned(reverse_any_vector(g));
+      hU := unsigned(reverse_any_vector(h));
+      ktU := unsigned(reverse_any_vector(kt));
+      wtU := unsigned(reverse_any_vector(wt));
       
       big_sigma1 := rotate_right(eU, 6) xor rotate_right(eU, 11) xor rotate_right(eU, 25);
       chEFG := (eU and fU) xor ( (not fU and gU) xor (not eU and gU));
       t2 := hU + big_sigma1 + chEFG + ktU + wtU;
       big_sigma0 := rotate_right(aU, 2) xor rotate_right(aU, 13) xor rotate_right(aU, 22) xor shift_right(aU, 7);
-      majABC := (aU and cU) and (aU and bU) and (bU and cU);
+      majABC := (aU and cU) xor (aU and bU) xor (bU and cU);
       cPlusD := cU + dU;
       big_sigma2 := rotate_right(cPlusD, 2) xor rotate_right(cPlusD, 3) xor rotate_right(cPlusD, 15) xor shift_right(cPlusD, 5);
       t1 := big_sigma0 + majABC + big_sigma2;
@@ -68,14 +69,14 @@ package body sha_functions is
       cU := bU;
       aU := t1 + t1 + t1 - t2;
       
-      result(0) := std_logic_vector(aU);
-      result(1) := std_logic_vector(bU);
-      result(2) := std_logic_vector(cU);
-      result(3) := std_logic_vector(dU);
-      result(4) := std_logic_vector(eU);
-      result(5) := std_logic_vector(fU);
-      result(6) := std_logic_vector(gU);
-      result(7) := std_logic_vector(hU);
+      result(0) := reverse_any_vector(std_logic_vector(aU));
+      result(1) := reverse_any_vector(std_logic_vector(bU));
+      result(2) := reverse_any_vector(std_logic_vector(cU));
+      result(3) := reverse_any_vector(std_logic_vector(dU));
+      result(4) := reverse_any_vector(std_logic_vector(eU));
+      result(5) := reverse_any_vector(std_logic_vector(fU));
+      result(6) := reverse_any_vector(std_logic_vector(gU));
+      result(7) := reverse_any_vector(std_logic_vector(hU));
       return result;
    end;
    
