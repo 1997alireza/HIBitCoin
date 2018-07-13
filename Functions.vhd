@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 
 package sha_functions is
     function padded_msg_size(msg_size : in integer) return integer;
-    function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer) return STD_LOGIC_VECTOR;
+    function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer; msg_length : integer) return STD_LOGIC_VECTOR;
     function inner_compression(a,b,c,d,e,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32;
     function sigma_one ( x : std_logic_vector ) return std_logic_vector;
     function sigma_zero ( x : std_logic_vector ) return std_logic_vector;
@@ -21,15 +21,16 @@ package body sha_functions is
       if (last_part > 448) then
          ret := 512 + ret;
       end if;
-      return ret;
+      return ret + MESSAGE_LENGTH_SIZE;
    end;
    
-   function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer) return STD_LOGIC_VECTOR is
+   function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer; msg_length : integer) return STD_LOGIC_VECTOR is
       variable padding_msg : STD_LOGIC_VECTOR(padding_msg_size-1 downto 0);
    begin
       padding_msg(padding_msg_size-1 downto padding_msg_size-msg'length) := msg;
       padding_msg(padding_msg_size-msg'length-1) := '1';
-      padding_msg(padding_msg_size-msg'length-2 downto 0) := (others => '0');
+      padding_msg(padding_msg_size-msg'length-2 downto MESSAGE_LENGTH_SIZE) := (others => '0');
+      padding_msg(MESSAGE_LENGTH_SIZE-1 downto 0) := std_logic_vector(to_unsigned(msg_length, MESSAGE_LENGTH_SIZE));
       return padding_msg;
    end;
       

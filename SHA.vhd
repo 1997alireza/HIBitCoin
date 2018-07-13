@@ -15,7 +15,7 @@ end entity;
 
 architecture rtl of SHA is
     signal State : STATE_TYPE;	
-    signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length) - 1 + MESSAGE_LENGTH_SIZE) downto 0);		 
+    signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length) - 1) downto 0);		 
     signal W : SectionType;
     signal hash_part : LOGIC_VECTOR_8_32;
 begin 
@@ -32,7 +32,7 @@ begin
     elsif rising_edge(clock) then 
         case State is
             when PADDING =>
-                padding_msg <= padding(msg, padded_msg_size(msg_length)) & std_logic_vector(to_unsigned(msg_length, MESSAGE_LENGTH_SIZE));
+                padding_msg <= padding(msg, padded_msg_size(msg_length), msg_length);
                 State <= BLOCK_PROCESS; 
             when BLOCK_PROCESS => 
                 if (block_section >=0 and block_section <= 15) then
