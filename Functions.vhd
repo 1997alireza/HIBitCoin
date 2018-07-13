@@ -6,10 +6,11 @@ use ieee.numeric_std.all;
 package sha_functions is
     function padded_msg_size(msg_size : in integer) return integer;
     function padding(msg : STD_LOGIC_VECTOR; padding_msg_size : integer) return STD_LOGIC_VECTOR;
-    function inner_compression(a,b,c,d,e,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32;
+    function inner_compression(a,b,c,d,ee,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32;
     function sigma_one ( x : std_logic_vector ) return std_logic_vector;
     function sigma_zero ( x : std_logic_vector ) return std_logic_vector;
     function permutation ( x : std_logic_vector ) return std_logic_vector;
+    function reverse_any_vector ( a : std_logic_vector ) return std_logic_vector;
 end sha_functions;
 
 package body sha_functions is
@@ -33,7 +34,7 @@ package body sha_functions is
       return padding_msg;
    end;
       
-   function inner_compression(a,b,c,d,e,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32 is
+   function inner_compression(a,b,c,d,ee,f,g,h,kt,wt : STD_LOGIC_VECTOR(31 downto 0)) return LOGIC_VECTOR_8_32 is
       variable big_sigma1, chEFG, t2, big_sigma0, majABC, cPlusD, big_sigma2, t1 : unsigned(31 downto 0);
       variable aU,bU,cU,dU,eU,fU,gU,hU,ktU,wtU : unsigned(31 downto 0);
       variable result : LOGIC_VECTOR_8_32;
@@ -42,7 +43,7 @@ package body sha_functions is
       bU := unsigned(b);
       cU := unsigned(c);
       dU := unsigned(d);
-      eU := unsigned(e);
+      eU := unsigned(ee);
       fU := unsigned(f);
       gU := unsigned(g);
       hU := unsigned(h);
@@ -92,12 +93,22 @@ package body sha_functions is
         variable result : STD_LOGIC_VECTOR(31 downto 0);
         begin
             result(31) := x(0);result(30) := x(1);result(29) := x(2);result(28) := x(3);result(27) := x(4);
-            result(26) := x(5);result(25) := x(6);result(24) := x(7);result(23) := x(15);result(22) := x(14);
-            result(21) := x(13);result(20) := x(12);result(19) := x(11);result(18) := x(10);result(17) := x(9);
-            result(16) := x(8);result(15) := x(16);result(14) := x(17);result(13) := x(18);result(12) := x(19);
-            result(11) := x(20);result(10) := x(21);result(9) := x(22);result(8) := x(23);result(7) := x(24);
+            result(26) := x(5);result(25) := x(6);result(24) := x(7);result(23) := x(8);result(22) := x(9);
+            result(21) := x(10);result(20) := x(11);result(19) := x(12);result(18) := x(13);result(17) := x(14);
+            result(16) := x(15);result(15) := x(23);result(14) := x(22);result(13) := x(21);result(12) := x(20);
+            result(11) := x(19);result(10) := x(18);result(9) := x(17);result(8) := x(16);result(7) := x(24);
             result(6) := x(25);result(5) := x(26);result(4) := x(27);result(3) := x(28);result(2) := x(29);
             result(1) := x(30);result(0) := x(31);
             return result;
         end function;   
+    function reverse_any_vector (a: in std_logic_vector)
+        return std_logic_vector is
+          variable result: std_logic_vector(a'RANGE);
+          alias aa: std_logic_vector(a'REVERSE_RANGE) is a;
+        begin
+          for i in aa'RANGE loop
+            result(i) := aa(i);
+          end loop;
+          return result;
+        end;
 end package body;

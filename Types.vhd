@@ -17,7 +17,7 @@ package sha_types is
         (x"19a4c116"), (x"1e376c08"), (x"2748774c"), (x"34b0bcb5"), (x"391c0cb3"), (x"4ed8aa4a"), (x"5b9cca4f"), (x"682e6ff3"), 
         (x"748f82ee"), (x"78a5636f"), (x"84c87814"), (x"8cc70208"), (x"90befffa"), (x"a4506ceb"), (x"bef9a3f7"), (x"c67178f2"));--todo
     constant HASH_INITIAL : LOGIC_VECTOR_8_32  := 
-        (x"6a09e667", x"bb67ae85", x"3c6ef372", x"a54ff53a", x"510e527f", x"9b05688c", x"1f83d9ab", x"5be0cd19");
+                    (x"6a09e667", x"bb67ae85", x"3c6ef372", x"a54ff53a", x"510e527f", x"9b05688c", x"1f83d9ab", x"5be0cd19");
           
 end sha_types;
 
