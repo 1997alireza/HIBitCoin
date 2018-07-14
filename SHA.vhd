@@ -9,12 +9,12 @@ generic (msg_length : integer := 32 );
 port (clock:    in STD_LOGIC;
       reset:    in STD_LOGIC;
       msg:      in STD_LOGIC_VECTOR(msg_length-1 downto 0);
-      ready:    out STD_LOGIC;
+      ready:    out STD_LOGIC := '0';
       hash :    out STD_LOGIC_VECTOR(255 downto 0));
 end entity;
 
 architecture rtl of SHA is
-    signal State : STATE_TYPE;	
+    signal State : STATE_TYPE := WATING;	
     signal padding_msg : STD_LOGIC_VECTOR(natural(padded_msg_size(msg_length) - 1) downto 0);		 
     signal W : SectionType;
     signal hash_part : LOGIC_VECTOR_8_32;
